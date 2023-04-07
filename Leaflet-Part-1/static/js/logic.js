@@ -9,11 +9,11 @@ d3.json(queryUrl).then(function (data) {
   
   function createFeatures(earthquakeData) {
 
-    // Define a function that we want to run once for each feature in the features array.
+    
 
-  // Give each feature a popup that describes the place and time of the earthquake.
+  // Give each feature a popup that describes the place, magnitude, and depth of the earthquake.
   function onEachFeature(feature, layer) {
-    layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
+    layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>Magnitude: ${feature.properties.mag}<br>Depth: ${feature.geometry.coordinates[2]} km</p>`);
   }
   //Define a function for markersize based on magnitude
   function markerSize(mag) {
@@ -91,6 +91,34 @@ function createMap(earthquakes) {
     zoom: 4.5,
     layers: [street, earthquakes]
   });
+
+  
+  // Define an object that maps depth ranges to colors.
+  var depthColors = {
+    "<10 km": "green",
+    "10-20 km": "greenyellow",
+    "20-30 km": "yellow",
+    "30-40 km": "lightsalmon",
+    "40-50 km": "orange",
+    ">50 km": "red"
+  };
+
+  // Create a legend control that displays the depth ranges and corresponding colors.
+  var legend = L.control({position: "bottomright"});
+  legend.onAdd = function(map) {
+    var div = L.DomUtil.create("div", "info legend");
+    div.innerHTML += "<h4>Depth (km)</h4>";
+    for (var depthRange in depthColors) {
+      div.innerHTML +=
+        '<i style="background:' +
+        depthColors[depthRange] +
+        '"></i> ' +
+        depthRange +
+        '<br>';
+    }
+    return div;
+  };
+  legend.addTo(myMap);
 
   // Create a layer control.
   // Pass it our baseMaps and overlayMaps.
